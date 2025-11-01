@@ -38,7 +38,8 @@ function ReportFoundContent() {
         <CardHeader>
           <CardTitle>Report Found Person</CardTitle>
           <CardDescription>
-            Share information about someone you&apos;ve found. If you saw a missing person report, you can reference it to help us link them faster. We&apos;ll automatically check for matches with missing persons.
+            Share information about someone you&apos;ve found. Only 3 fields are required (name, parish, and your email). 
+            If you saw a missing person report, you can reference it to help us link them faster. We&apos;ll automatically check for matches with missing persons.
           </CardDescription>
         </CardHeader>
         <CardContent>

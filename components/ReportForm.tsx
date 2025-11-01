@@ -25,14 +25,15 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { JAMAICAN_PARISHES } from "@/lib/constants";
 import { MissingPersonSearch } from "@/components/MissingPersonSearch";
 import { Id } from "@/convex/_generated/dataModel";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 type StorageId = Id<"_storage">;
 import { toast } from "sonner";
-import { XCircle } from "lucide-react";
+import { XCircle, ChevronDown, ChevronRight, CheckCircle2 } from "lucide-react";
 
 const reportSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -67,6 +68,11 @@ export function ReportForm({ type, onSuccess, initialReferencedMissingPersonId }
   const [referencedMissingPersonId, setReferencedMissingPersonId] = useState<Id<"missingPersons"> | null>(
     initialReferencedMissingPersonId || null
   );
+  
+  // State for collapsible sections (all start collapsed except basic info)
+  const [idsOpen, setIdsOpen] = useState(false);
+  const [physicalOpen, setPhysicalOpen] = useState(false);
+  const [additionalOpen, setAdditionalOpen] = useState(false);
 
   // Update referencedMissingPersonId if initialReferencedMissingPersonId changes
   useEffect(() => {
@@ -98,6 +104,22 @@ export function ReportForm({ type, onSuccess, initialReferencedMissingPersonId }
       reporterPhone: "",
     },
   });
+
+  // Watch form values to count filled optional fields for progress tracking
+  const watchedValues = form.watch();
+  
+  // Count filled optional fields
+  const filledOptionalFields = useMemo(() => {
+    const optionalFields = [
+      'dateOfBirth', 'trn', 'nin', 'passport', 'driverLicense',
+      'height', 'weight', 'skinTone', 'hairColor', 'distinctiveFeatures',
+      'lastKnownLocationCity', 'reporterPhone'
+    ];
+    return optionalFields.filter(field => {
+      const value = watchedValues[field as keyof typeof watchedValues];
+      return value && String(value).trim() !== '';
+    }).length + (photos.length > 0 ? 1 : 0);
+  }, [watchedValues, photos.length]);
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -186,333 +208,431 @@ export function ReportForm({ type, onSuccess, initialReferencedMissingPersonId }
           </div>
         )}
 
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Full Name *</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  placeholder="John Doe"
-                  autoComplete="name"
-                  className="text-base"
-                  autoFocus
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+        {/* Progress indicator */}
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <CheckCircle2 className="size-4 text-green-600 dark:text-green-400" />
+          <span>Minimum required fields: 3</span>
+          {filledOptionalFields > 0 && (
+            <>
+              <span className="mx-1">•</span>
+              <span className="text-foreground font-medium">
+                {filledOptionalFields} additional {filledOptionalFields === 1 ? 'detail' : 'details'} added
+              </span>
+            </>
           )}
-        />
-
-        <FormField
-          control={form.control}
-          name="dateOfBirth"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Date of Birth</FormLabel>
-              <FormControl>
-                <Input
-                  type="date"
-                  {...field}
-                  autoComplete="bday"
-                  className="text-base"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="trn"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>TRN (Tax Registration Number)</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="123-456-789"
-                    autoComplete="off"
-                    className="text-base"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="nin"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>NIN (National ID)</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="National ID number"
-                    autoComplete="off"
-                    className="text-base"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="passport"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Passport Number</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="Passport number"
-                    autoComplete="off"
-                    className="text-base"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="driverLicense"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Driver&apos;s License</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="License number"
-                    autoComplete="off"
-                    className="text-base"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="height"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Height</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="5'8&quot; or 173 cm"
-                    autoComplete="off"
-                    className="text-base"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="weight"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Weight</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="150 lbs or 68 kg"
-                    autoComplete="off"
-                    className="text-base"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="skinTone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Skin Tone</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="e.g., light, medium, dark"
-                    autoComplete="off"
-                    className="text-base"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="hairColor"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Hair Color</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="e.g., black, brown, blonde"
-                    autoComplete="off"
-                    className="text-base"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <FormField
-          control={form.control}
-          name="distinctiveFeatures"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Distinctive Features</FormLabel>
-              <FormControl>
-                <Textarea
-                  {...field}
-                  placeholder="Scars, tattoos, birthmarks, etc."
-                  rows={3}
-                  className="text-base"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name={locationFieldName}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>
-                {type === "missing" ? "Last Known Location - Parish *" : "Found Location - Parish *"}
-              </FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger className="text-base">
-                    <SelectValue placeholder="Select parish" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {JAMAICAN_PARISHES.map((parish) => (
-                    <SelectItem key={parish} value={parish} className="text-base">
-                      {parish}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="lastKnownLocationCity"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>
-                {type === "missing" ? "City/Town (optional)" : "City/Town (optional)"}
-              </FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  placeholder="City or town name"
-                  autoComplete="address-level2"
-                  className="text-base"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div>
-          <Label htmlFor="photos">Photos (up to 3)</Label>
-          <div className="mt-2">
-            <Input
-              id="photos"
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handlePhotoChange}
-              className="text-base"
-            />
-            {photos.length > 0 && (
-              <p className="mt-2 text-sm text-muted-foreground">
-                {photos.length} photo(s) selected
-              </p>
-            )}
+        {/* Basic Information Section - Always Open */}
+        <div className="space-y-4">
+          <div>
+            <h3 className="text-sm font-semibold mb-1">Basic Information</h3>
+            <p className="text-xs text-muted-foreground">Required fields to submit your report</p>
           </div>
+          
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Full Name *</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="John Doe"
+                    autoComplete="name"
+                    className="text-base"
+                    autoFocus
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="dateOfBirth"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Date of Birth (optional)</FormLabel>
+                <FormControl>
+                  <Input
+                    type="date"
+                    {...field}
+                    autoComplete="bday"
+                    className="text-base"
+                  />
+                </FormControl>
+                <FormDescription className="text-xs">
+                  Optional - but helpful for matching
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name={locationFieldName}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  {type === "missing" ? "Last Known Location - Parish *" : "Found Location - Parish *"}
+                </FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger className="text-base">
+                      <SelectValue placeholder="Select parish" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {JAMAICAN_PARISHES.map((parish) => (
+                      <SelectItem key={parish} value={parish} className="text-base">
+                        {parish}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="lastKnownLocationCity"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  {type === "missing" ? "City/Town (optional)" : "City/Town (optional)"}
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="City or town name"
+                    autoComplete="address-level2"
+                    className="text-base"
+                  />
+                </FormControl>
+                <FormDescription className="text-xs">
+                  Optional - but helpful for matching
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="reporterEmail"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Your Email *</FormLabel>
+                <FormControl>
+                  <Input
+                    type="email"
+                    {...field}
+                    placeholder="your@email.com"
+                    autoComplete="email"
+                    className="text-base"
+                  />
+                </FormControl>
+                <FormDescription>
+                  We&apos;ll use this to contact you with updates
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="reporterPhone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Your Phone (optional)</FormLabel>
+                <FormControl>
+                  <Input
+                    type="tel"
+                    {...field}
+                    placeholder="+1-876-123-4567 or +1-658-123-4567"
+                    autoComplete="tel"
+                    className="text-base"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
-        <FormField
-          control={form.control}
-          name="reporterEmail"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Your Email *</FormLabel>
-              <FormControl>
-                <Input
-                  type="email"
-                  {...field}
-                  placeholder="your@email.com"
-                  autoComplete="email"
-                  className="text-base"
-                />
-              </FormControl>
-              <FormDescription>
-                We&apos;ll use this to contact you with updates
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* Encouragement message after basic info */}
+        {watchedValues.name && watchedValues.lastKnownLocationParish && watchedValues.reporterEmail && (
+          <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
+            <p className="text-sm text-green-800 dark:text-green-200">
+              <strong>Great start!</strong> You&apos;ve completed the minimum required fields. 
+              Add more details below (all optional) to help us find them faster.
+            </p>
+          </div>
+        )}
 
-        <FormField
-          control={form.control}
-          name="reporterPhone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Your Phone (optional)</FormLabel>
-              <FormControl>
+        {/* Physical Description Section - Collapsible */}
+        <Collapsible open={physicalOpen} onOpenChange={setPhysicalOpen}>
+          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors">
+            <div className="flex items-center gap-2">
+              {physicalOpen ? (
+                <ChevronDown className="size-4 text-muted-foreground" />
+              ) : (
+                <ChevronRight className="size-4 text-muted-foreground" />
+              )}
+              <div className="text-left">
+                <h3 className="text-sm font-semibold">Physical Description (optional)</h3>
+                <p className="text-xs text-muted-foreground">5 fields available • Helps others identify the person</p>
+              </div>
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-3 space-y-4 pl-7">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="height"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Height (optional)</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="5'8&quot; or 173 cm"
+                        autoComplete="off"
+                        className="text-base"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="weight"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Weight (optional)</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="150 lbs or 68 kg"
+                        autoComplete="off"
+                        className="text-base"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="skinTone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Skin Tone (optional)</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="e.g., light, medium, dark"
+                        autoComplete="off"
+                        className="text-base"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="hairColor"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Hair Color (optional)</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="e.g., black, brown, blonde"
+                        autoComplete="off"
+                        className="text-base"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="distinctiveFeatures"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Distinctive Features (optional)</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      placeholder="Scars, tattoos, birthmarks, etc."
+                      rows={3}
+                      className="text-base"
+                    />
+                  </FormControl>
+                  <FormDescription className="text-xs">
+                    Optional - but very helpful for identification
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* Identification Numbers Section - Collapsible */}
+        <Collapsible open={idsOpen} onOpenChange={setIdsOpen}>
+          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors">
+            <div className="flex items-center gap-2">
+              {idsOpen ? (
+                <ChevronDown className="size-4 text-muted-foreground" />
+              ) : (
+                <ChevronRight className="size-4 text-muted-foreground" />
+              )}
+              <div className="text-left">
+                <h3 className="text-sm font-semibold">Identification Numbers (optional)</h3>
+                <p className="text-xs text-muted-foreground">4 fields available • Helps with verification</p>
+              </div>
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-3 space-y-4 pl-7">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="trn"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>TRN (Tax Registration Number) (optional)</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="123-456-789"
+                        autoComplete="off"
+                        className="text-base"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="nin"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>NIN (National ID) (optional)</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="National ID number"
+                        autoComplete="off"
+                        className="text-base"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="passport"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Passport Number (optional)</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="Passport number"
+                        autoComplete="off"
+                        className="text-base"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="driverLicense"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Driver&apos;s License (optional)</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="License number"
+                        autoComplete="off"
+                        className="text-base"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* Additional Details Section - Collapsible */}
+        <Collapsible open={additionalOpen} onOpenChange={setAdditionalOpen}>
+          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors">
+            <div className="flex items-center gap-2">
+              {additionalOpen ? (
+                <ChevronDown className="size-4 text-muted-foreground" />
+              ) : (
+                <ChevronRight className="size-4 text-muted-foreground" />
+              )}
+              <div className="text-left">
+                <h3 className="text-sm font-semibold">Photos (optional)</h3>
+                <p className="text-xs text-muted-foreground">Up to 3 photos • Very helpful for identification</p>
+              </div>
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-3 pl-7">
+            <div>
+              <Label htmlFor="photos">Photos (up to 3) (optional)</Label>
+              <div className="mt-2">
                 <Input
-                  type="tel"
-                  {...field}
-                  placeholder="+1-876-123-4567 or +1-658-123-4567"
-                  autoComplete="tel"
+                  id="photos"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handlePhotoChange}
                   className="text-base"
                 />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                {photos.length > 0 && (
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {photos.length} photo(s) selected
+                  </p>
+                )}
+              </div>
+              <FormDescription className="text-xs mt-1">
+                Photos are very helpful but not required
+              </FormDescription>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
 
         <div className="border border-border rounded-lg p-4 bg-muted/30 space-y-3">
           <h3 className="font-semibold text-sm">What information is shared?</h3>
@@ -552,7 +672,21 @@ export function ReportForm({ type, onSuccess, initialReferencedMissingPersonId }
           disabled={isSubmitting}
           className="w-full text-base min-h-[44px]"
         >
-          {isSubmitting ? "Saving…" : type === "missing" ? "Report Missing Person" : "Report Found Person"}
+          {isSubmitting ? (
+            "Saving…"
+          ) : filledOptionalFields > 0 ? (
+            <>
+              {type === "missing" ? "Report Missing Person" : "Report Found Person"}
+              <span className="ml-2 text-xs opacity-75">
+                ({filledOptionalFields} {filledOptionalFields === 1 ? "detail" : "details"} included)
+              </span>
+            </>
+          ) : (
+            <>
+              {type === "missing" ? "Report Missing Person" : "Report Found Person"}
+              <span className="ml-2 text-xs opacity-75">(3 fields minimum)</span>
+            </>
+          )}
         </Button>
       </form>
     </Form>

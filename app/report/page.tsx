@@ -26,7 +26,8 @@ export default function ReportMissingPage() {
         <CardHeader>
           <CardTitle>Report Missing Person</CardTitle>
           <CardDescription>
-            Share what you know about a missing person. All fields marked with * are required.
+            Share what you know about a missing person. Only 3 fields are required (name, parish, and your email). 
+            The more information you can provide, the easier it will be to find them—but you can start with just the basics.
           </CardDescription>
         </CardHeader>
         <CardContent>
