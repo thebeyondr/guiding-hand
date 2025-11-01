@@ -8,7 +8,7 @@ A Next.js app for tracking and finding missing persons after natural disasters i
 - **Report Found Persons**: Submit found person information - automatically matches against missing persons reports
 - **Fuzzy Matching Algorithm**: Uses Levenshtein distance for name matching with confidence scoring
 - **Email Notifications**: Automatic email alerts when high-confidence matches (>85%) are found
-- **Search & Browse**: Filter missing persons by parish, search by name
+- **Browse & Search**: View and filter missing persons by parish, search by name (on homepage)
 - **Tracking Subscriptions**: Subscribe to email notifications for specific missing persons
 
 ## Setup
@@ -98,9 +98,10 @@ Open [http://localhost:3000](http://localhost:3000)
 ```
 app/
   api/notify/          # Resend email API route
+  page.tsx             # Homepage with browse/search functionality
   report/              # Report missing person page
   found/               # Report found person page
-  search/              # Search/browse missing persons
+  person/[id]/         # View individual missing person details
   track/[id]/          # Subscribe to notifications for a missing person
 
 convex/
