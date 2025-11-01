@@ -5,7 +5,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: NextRequest) {
   try {
-    const { to, missingPersonName, foundPersonName, confidenceScore, matchId } =
+    const { to, missingPersonName, foundPersonName, confidenceScore } =
       await request.json();
 
     if (!to || !missingPersonName || !foundPersonName) {

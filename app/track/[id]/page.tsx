@@ -119,7 +119,7 @@ export default function TrackPage() {
               <CheckCircle2 className="size-16 text-primary mx-auto mb-6" />
               <p className="text-xl font-semibold mb-3">All set!</p>
               <p className="text-muted-foreground">
-                You'll receive email notifications for matches found for {person.name}.
+                You&apos;ll receive email notifications for matches found for {person.name}.
               </p>
             </div>
           ) : (
@@ -173,7 +173,7 @@ export default function TrackPage() {
               <div className="space-y-1">
                 <p className="font-medium text-sm">Check spam folder</p>
                 <p className="text-sm text-muted-foreground">
-                  Emails may arrive in spam. Check there if you don't see it.
+                  Emails may arrive in spam. Check there if you don&apos;t see it.
                 </p>
               </div>
             </div>
@@ -182,7 +182,7 @@ export default function TrackPage() {
               <div className="space-y-1">
                 <p className="font-medium text-sm">Search your email</p>
                 <p className="text-sm text-muted-foreground">
-                  Search for "Guiding Hand" to find notifications.
+                  Search for &quot;Guiding Hand&quot; to find notifications.
                 </p>
               </div>
             </div>
@@ -191,7 +191,7 @@ export default function TrackPage() {
               <div className="space-y-1">
                 <p className="font-medium text-sm">Automatic alerts</p>
                 <p className="text-sm text-muted-foreground">
-                  You'll be notified when high-confidence matches are found.
+                  You&apos;ll be notified when high-confidence matches are found.
                 </p>
               </div>
             </div>

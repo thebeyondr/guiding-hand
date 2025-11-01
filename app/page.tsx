@@ -97,7 +97,7 @@ export default function Home() {
             <div className="flex-1">
               <h1 className="text-4xl font-bold mb-2">Guiding Hand</h1>
               <p className="text-lg text-muted-foreground max-w-2xl">
-                Can't find someone after Hurricane Melissa or another disaster? Report missing or found persons in Jamaica, and get notified automatically when there's a match.
+                Can&apos;t find someone after Hurricane Melissa or another disaster? Report missing or found persons in Jamaica, and get notified automatically when there&apos;s a match.
               </p>
             </div>
             <div className="flex items-start gap-4 relative">
@@ -138,8 +138,8 @@ export default function Home() {
                         <div>
                           <h3 className="font-semibold mb-2">3. Get Notified</h3>
                           <p className="text-sm text-muted-foreground">
-                            If you're tracking a missing person and a match is found with high confidence (&gt;85%),
-                            you'll receive an email notification automatically.
+                            If you&apos;re tracking a missing person and a match is found with high confidence (&gt;85%),
+                            you&apos;ll receive an email notification automatically.
                           </p>
                         </div>
                       </CardContent>

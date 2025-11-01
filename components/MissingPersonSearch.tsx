@@ -10,7 +10,7 @@ import { Search, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface MissingPersonSearchProps {
-  onSelect: (personId: Id<"missingPersons">) => void;
+  onSelect: (personId: Id<"missingPersons"> | null) => void;
   selectedId?: Id<"missingPersons"> | null;
 }
 
@@ -61,7 +61,7 @@ export function MissingPersonSearch({ onSelect, selectedId }: MissingPersonSearc
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => onSelect(null as any)}
+                onClick={() => onSelect(null)}
                 className="text-xs cursor-pointer text-black dark:text-white hover:text-foreground hover:bg-blue-500/80"
               >
                 Change

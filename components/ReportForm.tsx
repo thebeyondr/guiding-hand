@@ -29,6 +29,8 @@ import { useState, useEffect } from "react";
 import { JAMAICAN_PARISHES } from "@/lib/constants";
 import { MissingPersonSearch } from "@/components/MissingPersonSearch";
 import { Id } from "@/convex/_generated/dataModel";
+
+type StorageId = Id<"_storage">;
 import { toast } from "sonner";
 import { XCircle } from "lucide-react";
 
@@ -109,7 +111,7 @@ export function ReportForm({ type, onSuccess, initialReferencedMissingPersonId }
     setError(null);
     try {
       // Upload photos first
-      const photoIds = [];
+      const photoIds: StorageId[] = [];
       for (const photo of photos) {
         const uploadUrl = await generateUploadUrl();
         const result = await fetch(uploadUrl, {
@@ -119,20 +121,20 @@ export function ReportForm({ type, onSuccess, initialReferencedMissingPersonId }
         });
         const { storageId } = await result.json();
         if (storageId) {
-          photoIds.push(storageId);
+          photoIds.push(storageId as StorageId);
         }
       }
 
       // Clean up empty optional fields
       const cleanedData = Object.fromEntries(
-        Object.entries(data).filter(([_, v]) => v !== "")
+        Object.entries(data).filter(([, v]) => v !== "")
       ) as ReportFormData;
 
       if (type === "missing") {
         const { reporterEmail, reporterPhone, lastKnownLocationParish, lastKnownLocationCity, ...rest } = cleanedData;
         await createMissing({
           ...rest,
-          photoIds: photoIds as any,
+          photoIds,
           reporterEmail,
           reporterPhone,
           lastKnownLocationParish,
@@ -142,7 +144,7 @@ export function ReportForm({ type, onSuccess, initialReferencedMissingPersonId }
         const { reporterEmail, reporterPhone, lastKnownLocationParish, lastKnownLocationCity, ...rest } = cleanedData;
         await createFound({
           ...rest,
-          photoIds: photoIds as any,
+          photoIds,
           reporterEmail,
           reporterPhone,
           foundLocationParish: lastKnownLocationParish,
@@ -288,7 +290,7 @@ export function ReportForm({ type, onSuccess, initialReferencedMissingPersonId }
             name="driverLicense"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Driver's License</FormLabel>
+                <FormLabel>Driver&apos;s License</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
@@ -485,7 +487,7 @@ export function ReportForm({ type, onSuccess, initialReferencedMissingPersonId }
                 />
               </FormControl>
               <FormDescription>
-                We'll use this to contact you with updates
+                We&apos;ll use this to contact you with updates
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -527,13 +529,13 @@ export function ReportForm({ type, onSuccess, initialReferencedMissingPersonId }
             <div>
               <p className="font-medium text-foreground mb-1">Only we keep:</p>
               <ul className="list-disc list-inside space-y-0.5 text-muted-foreground ml-2">
-                <li>ID numbers (TRN, NIN, passport, driver's license)</li>
+                <li>ID numbers (TRN, NIN, passport, driver&apos;s license)</li>
                 <li>Weight</li>
                 <li>Your contact information (email and phone)</li>
               </ul>
             </div>
             <p className="text-xs text-muted-foreground pt-2 border-t border-border">
-              The public information helps others identify the person if they see them. We'll only use your contact info to reach out if there's a match or update.
+              The public information helps others identify the person if they see them. We&apos;ll only use your contact info to reach out if there&apos;s a match or update.
             </p>
           </div>
         </div>
