@@ -16,7 +16,7 @@ export function SampleMissingPersonCard() {
     hairColor: "Black",
     distinctiveFeatures: "Tattoo on right wrist, glasses",
     lastKnownLocationParish: "Westmoreland",
-    lastKnownLocationCity: "Savanah-la-Mar",
+    lastKnownLocationCity: "Savanna-la-Mar",
     status: "missing" as const,
   };
 

@@ -11,16 +11,16 @@ export function HomeActions() {
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.1 }}
-      className="grid sm:grid-cols-2 gap-3 mb-6 pb-6 border-b"
+      className="flex flex-wrap gap-3 mb-6 pb-6 border-b"
     >
-      <Button asChild className="w-full h-11">
-        <Link href="/report" className="flex items-center justify-center gap-2">
+      <Button asChild className="h-11" size="lg">
+        <Link href="/report" className="flex items-center justify-center gap-2 font-medium">
           <UserPlus className="size-4" />
           Report Missing Person
         </Link>
       </Button>
-      <Button asChild variant="outline" className="w-full h-11">
-        <Link href="/found" className="flex items-center justify-center gap-2">
+      <Button asChild variant="outline" className="h-11" size="lg">
+        <Link href="/found" className="flex items-center justify-center gap-2 font-medium">
           <CheckCircle className="size-4" />
           Report Found Person
         </Link>
